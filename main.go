@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/christhirst/json-to-graphql/pkg"
+	"github.com/christhirst/json-to-graphql/pkg/jsonDataToSchema"
 )
 
 type schema struct {
@@ -89,7 +89,7 @@ func main() {
 	   		completed: Boolean!
 	   	}` */
 
-	dataMap := pkg.DataTypeSwitch(query)
+	dataMap := jsonDataToSchema.DataTypeSwitch(query)
 	parsedSchema := extractFields(dataMap)
 	fmt.Println(parsedSchema)
 

@@ -1,4 +1,4 @@
-package jsonDataToSchema
+package jsonToGQL
 
 type schema struct {
 	fields []string
