@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	
+
+	"github.com/christhirst/json-to-graphql/pkg"
 )
 
 type schema struct {
@@ -88,8 +89,8 @@ func main() {
 	   		completed: Boolean!
 	   	}` */
 
-	dataMap := dataTypeSwitch(query)
-pkg.parsedSchema := extractFields(dataMap)
+	dataMap := pkg.DataTypeSwitch(query)
+	parsedSchema := extractFields(dataMap)
 	fmt.Println(parsedSchema)
 
 	/* 	k := make([]string, len(data[0]))

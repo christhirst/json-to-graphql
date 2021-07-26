@@ -1,4 +1,4 @@
-package pkg
+package jsonDataToSchema
 
 type schema struct {
 	fields []string
@@ -17,7 +17,7 @@ func jsonToList(json []map[string]interface{}) map[string]interface{} {
 	return json[0]
 }
 
-func dataTypeSwitch(query string) map[string]interface{} {
+func DataTypeSwitch(query string) map[string]interface{} {
 	var data []map[string]interface{}
 	var dataMap map[string]interface{}
 	if err := json.Unmarshal([]byte(query), &data); err != nil {
