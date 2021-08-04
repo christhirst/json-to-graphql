@@ -1,69 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"strings"
 
-	"github.com/christhirst/json-to-graphql/pkg/jsonDataToSchema"
+	"github.com/christhirst/json-to-graphql/pkg/jsonToGQL"
 )
-
-type schema struct {
-	fields []string
-	typ    string
-}
-
-func stringtomap(query string) map[string]interface{} {
-	fmt.Println("query")
-	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(query), &data); err != nil {
-	}
-	return data
-}
-
-func jsonToList(json []map[string]interface{}) map[string]interface{} {
-	return json[0]
-}
-
-func dataTypeSwitch(query string) map[string]interface{} {
-	var data []map[string]interface{}
-	var dataMap map[string]interface{}
-	if err := json.Unmarshal([]byte(query), &data); err != nil {
-		dataMap = stringtomap(query)
-	} else {
-		dataMap = jsonToList(data)
-	}
-
-	return dataMap
-}
-
-func extractFields(dataMap map[string]interface{}) schema {
-	k := make([]string, len(dataMap))
-	i := 0
-	var ss schema
-
-	// copy c's keys into k
-	for s, _ := range dataMap {
-		k[i] = s
-		i++
-	}
-	ss.fields = k
-	/* 	for key, value := range results {
-	   		fmt.Println("key:", key, "value:", value)
-	   	}
-	   	fmt.Printf("%#v\n", ss) */
-	return ss
-}
 
 func main() {
 
 	query := `
 	
-   {
-    "userId": 1,
-    "id": 1,
-    "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
-  }
+	[
+		{
+		  "userId": 1,
+		  "id": 1,
+		  "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+		  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+		},
+		{
+		  "userId": 1,
+		  "id": 2,
+		  "title": "qui est esse",
+		  "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
+		} 
+ 
+ 
+  ]
 		`
 
 	/* 	query3 = `type Person {
@@ -88,24 +51,26 @@ func main() {
 	   		title: String!
 	   		completed: Boolean!
 	   	}` */
+	parsedSchema := jsonToGQL.Schema{Typ: "custom"}
+	dataMap := jsonToGQL.ListOrMapSwitch(query)
+	parsedSchema = jsonToGQL.ExtractFields(dataMap)
+	//fmt.Println(parsedSchema)
 
-	dataMap := jsonDataToSchema.DataTypeSwitch(query)
-	parsedSchema := extractFields(dataMap)
-	fmt.Println(parsedSchema)
+	var b strings.Builder
 
-	/* 	k := make([]string, len(data[0]))
-	   	i := 0
-	   	var ss schema
-	   	gen("ss")
-	   	// copy c's keys into k
-	   	for s, _ := range data[0] {
-	   		k[i] = s
-	   		i++
-	   	}ll
-	   	ss.fields = k
-	   	/* 	for key, value := range results {
-	   		fmt.Println("key:", key, "value:", value)
-	   	}
-	   	fmt.Printf("%#v\n", ss) */
+	// Write strings to the Buffer.
+
+	// Convert to a string and print it.
+	//fmt.Println(b.String())
+	b.WriteString(parsedSchema.Typ)
+	b.WriteString(" {")
+	for i, element := range parsedSchema.FieldData {
+		for _, ee := range element {
+			b.WriteString("\n" + i + ": " + ee)
+		}
+	}
+	b.WriteString("\n")
+	b.WriteString("}")
+	fmt.Println(b.String())
 
 }

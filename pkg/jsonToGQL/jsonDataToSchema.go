@@ -1,45 +1,78 @@
 package jsonToGQL
 
-type schema struct {
-	fields []string
-	typ    string
+import (
+	"encoding/json"
+)
+
+type Schema struct {
+	Typ       string
+	FieldData map[string][]string
+}
+
+func NewSchema() *Schema {
+	var g Schema
+	g.Typ = "custom"
+	g.FieldData = make(map[string][]string)
+	return &g
 }
 
 func stringtomap(query string) map[string]interface{} {
-	fmt.Println("query")
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(query), &data); err != nil {
 	}
 	return data
 }
 
+func DataTypesToSchema(i interface{}) string {
+
+	switch i.(type) {
+	case float64:
+		if i.(float64) == float64(int(i.(float64))) {
+			return "int"
+		}
+		return "float"
+	case string:
+		return "string"
+	default:
+		return "string"
+
+	}
+}
+
 func jsonToList(json []map[string]interface{}) map[string]interface{} {
 	return json[0]
 }
 
-func DataTypeSwitch(query string) map[string]interface{} {
-	var data []map[string]interface{}
+func ListOrMapSwitch(query string) map[string]interface{} {
+	var dataList []map[string]interface{}
 	var dataMap map[string]interface{}
-	if err := json.Unmarshal([]byte(query), &data); err != nil {
+	if err := json.Unmarshal([]byte(query), &dataList); err != nil {
 		dataMap = stringtomap(query)
 	} else {
-		dataMap = jsonToList(data)
+		dataMap = jsonToList(dataList)
 	}
 
 	return dataMap
 }
 
-func extractFields(dataMap map[string]interface{}) schema {
-	k := make([]string, len(dataMap))
-	i := 0
-	var ss schema
+func ExtractFields(dataMap map[string]interface{}) Schema {
+	inputData := make([]string, len(dataMap))
 
+	//FieldMap := make(map[string][]string)
+
+	ss := *NewSchema()
+
+	i := 0
 	// copy c's keys into k
-	for s, _ := range dataMap {
-		k[i] = s
+	for s, w := range dataMap {
+		var sl []string
+		sl = append(sl, DataTypesToSchema(w))
+
+		//FieldMap[inputData[i]] = sl
+		inputData[i] = s
+		ss.FieldData[inputData[i]] = sl
 		i++
 	}
-	ss.fields = k
 	/* 	for key, value := range results {
 	   		fmt.Println("key:", key, "value:", value)
 	   	}
